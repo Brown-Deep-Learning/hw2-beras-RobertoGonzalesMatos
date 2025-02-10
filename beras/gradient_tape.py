@@ -1,5 +1,5 @@
 from collections import defaultdict
-
+import numpy as np
 from beras.core import Diffable, Tensor
 
 class GradientTape:
@@ -40,3 +40,20 @@ class GradientTape:
 
         # What tensor and what gradient is for you to implement!
         # compose_input_gradients and compose_weight_gradients are methods that will be helpful
+        grads[id(target)] = np.zeros_like(target)
+        while len(queue) != 0:
+            currNode = queue.pop(0)
+            layer = self.previous_layers.get(id(currNode))
+            if layer:
+                input_grad = layer.compose_input_gradients(grads[id(currNode)])
+                weight_grad = layer.compose_weight_gradients(grads[id(currNode)])
+
+                for inp, grad in zip(layer.inputs, input_grad):
+                    grads[id(inp)] = grad  
+                    queue.append(inp)
+
+                for weight, grad in zip(layer.weights, weight_grad):
+                    grads[id(weight)] = grad 
+
+        return [grads[id(source)] for source in sources]
+

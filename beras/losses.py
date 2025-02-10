@@ -16,17 +16,28 @@ class Loss(Diffable):
 
 class MeanSquaredError(Loss):
     def forward(self, y_pred: Tensor, y_true: Tensor) -> Tensor:
-        return NotImplementedError
+        return np.mean(np.square(y_pred - y_true), axis=-1).mean()
 
     def get_input_gradients(self) -> list[Tensor]:
-        return NotImplementedError
+        y_pred, y_true = self.inputs, self.outputs  
+        batch_size = y_pred.shape[0] 
+
+        grad = (2 / batch_size) * (y_pred - y_true)
+        return [grad]
 
 class CategoricalCrossEntropy(Loss):
 
     def forward(self, y_pred, y_true):
         """Categorical cross entropy forward pass!"""
-        return NotImplementedError
+        loss = -np.sum(y_true * np.log(y_pred), axis=-1)
+
+        return np.mean(loss)
 
     def get_input_gradients(self):
         """Categorical cross entropy input gradient method!"""
-        return NotImplementedError
+        y_pred, y_true = self.inputs, self.outputs  
+        batch_size = y_pred.shape[0] 
+
+        grad = - (y_true / y_pred) / batch_size
+
+        return [grad]

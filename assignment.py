@@ -15,34 +15,45 @@ def get_model():
         [
            # Add in your layers here as elements of the list!
            # e.g. Dense(10, 10),
+           Dense(784, 200),
+           Softmax(),
+           Dense(200, 200),
+           Softmax(),
+           Dense(200, 10),
+           Softmax(),
         ]
     )
     return model
 
 def get_optimizer():
     # choose an optimizer, initialize it and return it!
-    return ...
+    return Adam(0.3)
 
 def get_loss_fn():
     # choose a loss function, initialize it and return it!
-    return ...
+    loss = CategoricalCrossEntropy()
+    return loss
 
 def get_acc_fn():
     # choose an accuracy metric, initialize it and return it!
-    return ...
+    return CategoricalAccuracy()
 
 if __name__ == '__main__':
 
     ### Use this area to test your implementation!
 
     # 1. Create a SequentialModel using get_model
-
+    model = get_model()
     # 2. Compile the model with optimizer, loss function, and accuracy metric
-    
+    model.compile(get_optimizer(),get_loss_fn(),get_acc_fn())
     # 3. Load and preprocess the data
-    
+    OneHotEncode = OneHotEncoder()
+    train_inputs, train_labels, test_inputs, test_labels = load_and_preprocess_data()
+    OneHotEncode.fit(data = train_labels)
     # 4. Train the model
-
+    model.fit(train_inputs,OneHotEncode.forward(train_labels),10,10)
     # 5. Evaluate the model
+    OneHotEncode.fit(data = test_labels)
+    model.evaluate(test_inputs,OneHotEncode.forward(test_labels),10)
     
     

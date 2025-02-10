@@ -16,7 +16,7 @@ class Tensor(np.ndarray):
 
     def __new__(cls, input_array):
         # Create a new instance of the Tensor
-        obj = np.asarray(a=???).view(type=cls)
+        obj = np.asarray(a=input_array).view(type=cls)
         obj.trainable = True
         return obj
 
@@ -71,22 +71,24 @@ class Weighted(ABC):
     @property
     def trainable_variables(self) -> list[Tensor]:
         """Collects all trainable variables in the module"""
-        return NotImplementedError
+        return [w for w in self.weights if w.trainable]
 
     @property
     def non_trainable_variables(self) -> list[Tensor]:
         """Collects all non-trainable variables in the module"""
-        return NotImplementedError
+        return [w for w in self.weights if not w.trainable]
 
     @property
     def trainable(self) -> bool:
         """Returns true if any of the weights are trainable"""
-        return NotImplementedError
+        return any(w.trainable for w in self.weights)
 
     @trainable.setter
     def trainable(self, trainable: bool):
         """Sets the trainable status of all weights to trainable"""
-        pass 
+        for w in self.weights:
+            w.trainable = trainable
+
 
 
 class Diffable(Callable, Weighted):

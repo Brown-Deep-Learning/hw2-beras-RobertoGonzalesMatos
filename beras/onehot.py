@@ -15,6 +15,9 @@ class OneHotEncoder(Callable):
      - keras does not have OneHotEncoder; has LabelEncoder, CategoricalEncoder, and to_categorical()
     """
 
+    def __init__(self):
+        self.mapping = {}
+
     def fit(self, data):
         """
         Fits the one-hot encoder to a candidate dataset. Said dataset should contain
@@ -23,10 +26,14 @@ class OneHotEncoder(Callable):
         :param data: 1D array containing labels.
             For example, data = [0, 1, 3, 3, 1, 9, ...]
         """
-        return NotImplementedError
+        unique_labels = np.unique(data)  
+        one_hot_vectors = np.eye(len(unique_labels))
+        self.mapping = {label: one_hot_vectors[i] for i, label in enumerate(unique_labels)}
+
 
     def forward(self, data):
-        return NotImplementedError
+        return np.array([self.mapping[label] for label in data])
 
     def inverse(self, data):
-        return NotImplementedError
+        unique_labels = list(self.mapping.keys())
+        return np.array([unique_labels[np.argmax(vec)] for vec in data]) 
