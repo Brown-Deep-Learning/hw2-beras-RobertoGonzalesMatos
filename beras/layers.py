@@ -23,7 +23,7 @@ class Dense(Diffable):
 
     def get_input_gradients(self) -> list[Tensor]:
         weights, _ = self.weights
-        return [weights.T]
+        return [weights]
 
     def get_weight_gradients(self) -> list[Tensor]:
         return [self.inputs,np.ones_like(self.b)]
