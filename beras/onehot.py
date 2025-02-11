@@ -26,8 +26,9 @@ class OneHotEncoder(Callable):
         :param data: 1D array containing labels.
             For example, data = [0, 1, 3, 3, 1, 9, ...]
         """
-        unique_labels = np.unique(data)  
-        one_hot_vectors = np.eye(len(unique_labels))
+        unique_labels = np.sort(np.unique(data))  
+        one_hot_vectors = np.eye(len(unique_labels), dtype=np.float32)
+        
         self.mapping = {label: one_hot_vectors[i] for i, label in enumerate(unique_labels)}
 
 
