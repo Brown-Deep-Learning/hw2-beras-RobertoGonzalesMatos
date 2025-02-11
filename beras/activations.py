@@ -21,6 +21,7 @@ class LeakyReLU(Activation):
 
     def forward(self, x) -> Tensor:
         """Leaky ReLu forward propagation!"""
+        self.inputs = x
         return np.maximum(self.alpha*x, x)
 
     def get_input_gradients(self) -> list[Tensor]:
@@ -49,6 +50,7 @@ class Sigmoid(Activation):
     ## TODO: Implement for default output activation to bind output to 0-1
     
     def forward(self, x) -> Tensor:
+        self.inputs = x
         return 1/(1+np.exp(-x))
 
     def get_input_gradients(self) -> list[Tensor]:
@@ -76,6 +78,7 @@ class Softmax(Activation):
 
         ## HINT: Use stable softmax, which subtracts maximum from
         ## all entries to prevent overflow/underflow issues
+        self.inputs = x
         exp_x = np.exp(x - np.max(x, axis=-1, keepdims=True))  
         return exp_x / np.sum(exp_x, axis=-1, keepdims=True)
 
