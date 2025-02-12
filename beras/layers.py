@@ -26,16 +26,13 @@ class Dense(Diffable):
         return [weights]
 
     def get_weight_gradients(self) -> list[Tensor]:
-        x = self.inputs[0]  # Input tensor
-        dL_dOut = self.compose_input_gradients()  # Gradient from next layer
+        x = self.inputs[0]  
+        dL_dOut = self.compose_input_gradients(self.get_input_gradients()) 
 
-        # Compute weight gradients: dL/dW = X^T @ dL/dOut
         dW = x.T @ dL_dOut[0]
 
-        # Compute bias gradients: dL/db = sum(dL/dOut) over batch axis
-        db = np.sum(dL_dOut[0], axis=0, keepdims=True)
 
-        return [Tensor(dW), Tensor(db)]
+        return [Tensor(dW), Tensor(np.ones_like(self.b))]
 
     @staticmethod
     def _initialize_weight(initializer, input_size, output_size) -> tuple[Variable, Variable]:
