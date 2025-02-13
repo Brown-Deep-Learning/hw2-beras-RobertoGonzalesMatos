@@ -53,7 +53,6 @@ if __name__ == '__main__':
     # 4. Train the model
     model.fit(train_inputs,OneHotEncode.forward(train_labels),10,10)
     # 5. Evaluate the model
-    OneHotEncode.fit(data = test_labels)
-    model.evaluate(test_inputs,OneHotEncode.forward(test_labels),10)
-    
+    model.evaluate(test_inputs, OneHotEncode.forward(test_labels), 10)
+
     

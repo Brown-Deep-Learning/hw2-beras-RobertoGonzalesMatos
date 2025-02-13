@@ -81,16 +81,19 @@ class Model(Diffable):
             epoch_metrics = defaultdict(list)
             indices = np.arange(num_samples)
             np.random.shuffle(indices)
-            x, y = x[indices], y[indices]
+            
+            # Avoid modifying x, y directly
+            x_shuffled, y_shuffled = x[indices], y[indices]
             
             for i in range(0, num_samples, batch_size):
-                x_batch = x[i:i + batch_size]
-                y_batch = y[i:i + batch_size]
+                x_batch = x_shuffled[i:i + batch_size]
+                y_batch = y_shuffled[i:i + batch_size]
                 
                 batch_metrics = self.batch_step(x_batch, y_batch, training=True)
                 update_metric_dict(epoch_metrics, batch_metrics)
+
                 print_stats(batch_metrics, batch_num=i//batch_size, num_batches=num_samples//batch_size, epoch=epoch)
-            
+
             update_metric_dict(history, epoch_metrics)
             print_stats(epoch_metrics, epoch=epoch, avg=True)
         
@@ -110,16 +113,15 @@ class Model(Diffable):
         history = defaultdict(list)
         
         epoch_metrics = defaultdict(list)
-        indices = np.arange(num_samples)
-        np.random.shuffle(indices)
-        x, y = x[indices], y[indices]
 
         for i in range(0, num_samples, batch_size):
             x_batch = x[i:i + batch_size] 
             y_batch = y[i:i + batch_size]  
             
+            # Correctly unpacking batch_step output
             batch_metrics, predictions = self.batch_step(x_batch, y_batch, training=False)
             update_metric_dict(epoch_metrics, batch_metrics)
+
             print_stats(batch_metrics, batch_num=i//batch_size, num_batches=num_samples//batch_size)
         
         update_metric_dict(history, epoch_metrics)
