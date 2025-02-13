@@ -36,7 +36,7 @@ class CategoricalCrossEntropy(Loss):
     def get_input_gradients(self):
         """Categorical cross entropy input gradient method!"""
         y_pred, y_true = self.inputs, self.outputs  
-        batch_size = y_pred.shape[0] 
+        batch_size = np.shape(y_pred)
 
         grad = - (y_true / y_pred) / batch_size
 
