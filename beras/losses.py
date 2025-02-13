@@ -22,7 +22,7 @@ class MeanSquaredError(Loss):
         y_pred, y_true = self.inputs, self.outputs  
         batch_size = np.array(y_pred).shape[0] 
 
-        grad = (2 / batch_size) * (y_pred - y_true)
+        grad = (2 / batch_size) * ([a_i - b_i for a_i, b_i in zip(y_pred, y_true)])
         return [grad]
 
 class CategoricalCrossEntropy(Loss):
@@ -38,6 +38,6 @@ class CategoricalCrossEntropy(Loss):
         y_pred, y_true = self.inputs, self.outputs  
         batch_size = np.shape(y_pred)
 
-        grad = - (y_true / y_pred) / batch_size
+        grad = - ([b_i/a_i for a_i, b_i in zip(y_pred, y_true)]) / batch_size
 
         return [grad]
