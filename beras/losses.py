@@ -20,7 +20,7 @@ class MeanSquaredError(Loss):
 
     def get_input_gradients(self) -> list[Tensor]:
         y_pred, y_true = self.inputs, self.outputs  
-        batch_size = y_pred.shape[0] 
+        batch_size = np.array(y_pred).shape[0] 
 
         grad = (2 / batch_size) * (y_pred - y_true)
         return [grad]

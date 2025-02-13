@@ -23,17 +23,19 @@ class Dense(Diffable):
 
     def get_input_gradients(self) -> list[Tensor]:
         weights, _ = self.weights
-        return [weights]
+        return [weights.T]
 
     def get_weight_gradients(self) -> list[Tensor]:
-        x = self.inputs[0]  
-        dL_dOut = self.compose_input_gradients(self.get_input_gradients()) 
-
+        x = self.inputs[0]  # Input to the layer
+        dL_dOut = self.compose_input_gradients()  # Gradients of the loss w.r.t. the output
+        
+        # Compute weight gradient: dL/dW = x^T * dL/dOut
         dW = x.T @ dL_dOut[0]
 
+        # Compute bias gradient: sum over batch dimension
+        db = np.sum(dL_dOut[0], axis=0, keepdims=True)
 
-        return [Tensor(dW), Tensor(np.ones_like(self.b))]
-
+        return [Tensor(dW), Tensor(db)]
     @staticmethod
     def _initialize_weight(initializer, input_size, output_size) -> tuple[Variable, Variable]:
         """
