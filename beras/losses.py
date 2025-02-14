@@ -28,8 +28,6 @@ class CategoricalCrossEntropy(Loss):
 
     def forward(self, y_pred, y_true):
         """Categorical cross entropy forward pass!"""
-        self.inputs = y_pred
-        self.outputs = y_true
         loss = -np.sum(y_true * np.log(y_pred), axis=-1)
 
         return np.mean(loss)
