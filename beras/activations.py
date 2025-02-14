@@ -21,7 +21,6 @@ class LeakyReLU(Activation):
 
     def forward(self, x) -> Tensor:
         """Leaky ReLu forward propagation!"""
-        self.inputs = x
         return np.maximum(self.alpha*x, x)
 
     def get_input_gradients(self) -> list[Tensor]:
@@ -78,13 +77,12 @@ class Softmax(Activation):
 
         ## HINT: Use stable softmax, which subtracts maximum from
         ## all entries to prevent overflow/underflow issues
-        self.inputs = x
         exp_x = np.exp(x - np.max(x, axis=-1, keepdims=True))  
         return exp_x / np.sum(exp_x, axis=-1, keepdims=True)
 
     def get_input_gradients(self):
         """Softmax input gradients!"""
-        x, y = self.inputs + self.outputs
+        x, y = self.inputs, self.outputs
         bn, n = x.shape
         grad = np.zeros(shape=(bn, n, n), dtype=x.dtype)
         
