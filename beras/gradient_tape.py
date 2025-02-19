@@ -43,17 +43,18 @@ class GradientTape:
         grads[id(target)] = np.zeros_like(target)
         while len(queue) != 0:
             currNode = queue.pop(0)
-            layer = self.previous_layers.get(id(currNode))
-            if layer:
-                input_grad = layer.compose_input_gradients(grads[id(currNode)])
-                weight_grad = layer.compose_weight_gradients(grads[id(currNode)])
+            layer = id(currNode)
+            if layer not in self.previous_layers:
+                continue
+            prevLayer = self.previous_layers[layer]
+            currGrad = grads[layer]
+            for inp, grad in zip(prevLayer.inputs, prevLayer.compose_input_gradients(currGrad)):
+                grads[id(inp)] = [grad]  
+                queue.append(inp)
 
-                for inp, grad in zip(layer.inputs, input_grad):
-                    grads[id(inp)] = grad  
-                    queue.append(inp)
+            for weight, grad in zip(prevLayer.weights, prevLayer.compose_weight_gradients(currGrad)):
+                grads[id(weight)] = grad 
+                queue.append(weight)
 
-                for weight, grad in zip(layer.weights, weight_grad):
-                    grads[id(weight)] = grad 
-
-        return [grads[id(source)] for source in sources]
+        return [grads[id(source)][0] for source in sources]
 
