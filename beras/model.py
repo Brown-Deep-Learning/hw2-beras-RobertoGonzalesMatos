@@ -75,10 +75,10 @@ class Model(Diffable):
         into the batch_step method with training. At the end, the metrics are returned.
         """
         num_samples = x.shape[0]
-        history = defaultdict(list)
+        history = defaultdict(lambda: [])
         
         for epoch in range(epochs):
-            epoch_metrics = defaultdict(list)            
+            epoch_metrics = defaultdict(lambda: [])            
             for i,j in enumerate(range(batch_size,x.shape[0]+1,batch_size)):
                 var = j - batch_size
                 batch_metrics = self.batch_step(x[var:j], y[var:j], training=True)
@@ -158,8 +158,8 @@ class SequentialModel(Model):
             gradients = tape.gradient(loss,self.trainable_variables)
             self.optimizer.apply_gradients(self.trainable_variables, gradients)
 
+        acc = self.compiled_acc.forward(predictions, y)
         if training:
-            acc = self.compiled_acc.forward(predictions, y)
             return {"loss": loss, "acc": acc}
         else:
             return {"loss": loss, "acc": acc}, predictions
