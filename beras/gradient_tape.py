@@ -40,21 +40,21 @@ class GradientTape:
 
         # What tensor and what gradient is for you to implement!
         # compose_input_gradients and compose_weight_gradients are methods that will be helpful
-        grads[id(target)] = np.zeros_like(target)
-        while len(queue) != 0:
+
+        while queue:
             currNode = queue.pop(0)
             layer = id(currNode)
-            if layer not in self.previous_layers:
+            if layer not in self.previous_layers.keys():
                 continue
             prevLayer = self.previous_layers[layer]
             currGrad = grads[layer]
             for inp, grad in zip(prevLayer.inputs, prevLayer.compose_input_gradients(currGrad)):
                 grads[id(inp)] = [grad]  
-                queue.append(inp)
+                queue += [inp]
 
             for weight, grad in zip(prevLayer.weights, prevLayer.compose_weight_gradients(currGrad)):
                 grads[id(weight)] = [grad] 
-                queue.append(weight)
+                queue += [weight]
 
         return [grads[id(source)][0] for source in sources]
 

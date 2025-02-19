@@ -78,18 +78,10 @@ class Model(Diffable):
         history = defaultdict(list)
         
         for epoch in range(epochs):
-            epoch_metrics = defaultdict(list)
-            indices = np.arange(num_samples)
-            np.random.shuffle(indices)
-            
-            # Avoid modifying x, y directly
-            x_shuffled, y_shuffled = x[indices], y[indices]
-            
-            for i in range(0, num_samples, batch_size):
-                x_batch = x_shuffled[i:i + batch_size]
-                y_batch = y_shuffled[i:i + batch_size]
-                
-                batch_metrics = self.batch_step(x_batch, y_batch, training=True)
+            epoch_metrics = defaultdict(list)            
+            for i,j in enumerate(range(batch_size,x.shape[0]+1,batch_size)):
+                var = j - batch_size
+                batch_metrics = self.batch_step(x[var:j], y[var:j], training=True)
                 update_metric_dict(epoch_metrics, batch_metrics)
 
                 print_stats(batch_metrics, batch_num=i//batch_size, num_batches=num_samples//batch_size, epoch=epoch)
@@ -114,19 +106,16 @@ class Model(Diffable):
         
         epoch_metrics = defaultdict(list)
 
-        for i in range(0, num_samples, batch_size):
-            x_batch = x[i:i + batch_size] 
-            y_batch = y[i:i + batch_size]  
-            
-            # Correctly unpacking batch_step output
-            batch_metrics, predictions = self.batch_step(x_batch, y_batch, training=False)
+
+        for i,j in enumerate(range(batch_size,x.shape[0]+1,batch_size)):
+            var = j- batch_size
+            batch_metrics, predictions = self.batch_step(x[var:j], y[var:j], training=False)
             update_metric_dict(epoch_metrics, batch_metrics)
 
-            print_stats(batch_metrics, batch_num=i//batch_size, num_batches=num_samples//batch_size)
-        
+            print_stats(batch_metrics, batch_num=i//batch_size, num_batches=num_samples//batch_size, epoch=epoch)
+
         update_metric_dict(history, epoch_metrics)
         print_stats(epoch_metrics, avg=True)
-        
         return history
 
     def get_input_gradients(self) -> list[Tensor]:
@@ -161,15 +150,16 @@ class SequentialModel(Model):
         ## TODO: Compute loss and accuracy for a batch. Return as a dictionary
         ## If training, then also update the gradients according to the optimizer
         
-        ##go check in on this bc I don't know how to use tapes
         with GradientTape() as tape:
             predictions = self.forward(x)
             loss = self.compiled_loss.forward(predictions, y)
-            acc = self.compiled_acc.forward(predictions, y)
+           
+        if training:
+            gradients = tape.gradient(loss,self.trainable_variables)
+            self.optimizer.apply_gradients(self.trainable_variables, gradients)
 
         if training:
-            gradients = self.compiled_loss.get_weight_gradients()
-            self.optimizer.apply_gradients(self.weights, gradients)
+            acc = self.compiled_acc.forward(predictions, y)
             return {"loss": loss, "acc": acc}
         else:
             return {"loss": loss, "acc": acc}, predictions
