@@ -22,12 +22,12 @@ class Dense(Diffable):
         return x @ weights + bias
 
     def get_input_gradients(self) -> list[Tensor]:
-        weights, _ = self.weights
-        return [weights]
+        # weights, _ = self.weights
+        return [self.weights]
 
     def get_weight_gradients(self) -> list[Tensor]:
         x = self.inputs[0]  
-        a = np.expand_dims(x,-1)
+        a = np.expand_dims(x,axis=-1)
         return [Tensor(a*np.ones_like(self.w)), Tensor(np.ones_like(self.b))]
     
     @staticmethod

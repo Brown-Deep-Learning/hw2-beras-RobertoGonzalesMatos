@@ -27,7 +27,7 @@ def get_model():
 
 def get_optimizer():
     # choose an optimizer, initialize it and return it!
-    return Adam(0.3)
+    return Adam(0.1)
 
 def get_loss_fn():
     # choose a loss function, initialize it and return it!
@@ -49,7 +49,8 @@ if __name__ == '__main__':
     # 3. Load and preprocess the data
     OneHotEncode = OneHotEncoder()
     train_inputs, train_labels, test_inputs, test_labels = load_and_preprocess_data()
-    OneHotEncode.fit(data = train_labels)
+    aaa = np.concatenate([train_labels,test_labels],axis = -1)
+    OneHotEncode.fit(data = aaa)
     # 4. Train the model
     model.fit(train_inputs,OneHotEncode.forward(train_labels),10,10)
     # 5. Evaluate the model
