@@ -53,7 +53,7 @@ class GradientTape:
                 queue.append(inp)
 
             for weight, grad in zip(prevLayer.weights, prevLayer.compose_weight_gradients(currGrad)):
-                grads[id(weight)] = grad 
+                grads[id(weight)] = [grad] 
                 queue.append(weight)
 
         return [grads[id(source)][0] for source in sources]
