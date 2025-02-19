@@ -26,13 +26,10 @@ class Dense(Diffable):
         return [weights]
 
     def get_weight_gradients(self) -> list[Tensor]:
-        x = self.inputs[0]  # Input to the layer
-        dL_dOut = self.compose_input_gradients()  # Gradients of the loss w.r.t. the output
+        x = self.inputs[0]  
         
-        # Compute weight gradient: dL/dW = x^T * dL/dOut
-        dW = x.T @ dL_dOut[0]
 
-        return [Tensor(dW), Tensor(np.ones_like(self.b))]
+        return [Tensor(x@np.ones_like(self.w)), Tensor(np.ones_like(self.b))]
     @staticmethod
     def _initialize_weight(initializer, input_size, output_size) -> tuple[Variable, Variable]:
         """
