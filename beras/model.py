@@ -84,7 +84,7 @@ class Model(Diffable):
                 batch_metrics = self.batch_step(x[var:j], y[var:j], training=True)
                 update_metric_dict(epoch_metrics, batch_metrics)
 
-                print_stats(batch_metrics, batch_num=i//batch_size, num_batches=num_samples//batch_size, epoch=epoch)
+                print_stats(batch_metrics, batch_num=i, num_batches=num_samples, epoch=epoch)
 
             update_metric_dict(history, epoch_metrics)
             print_stats(epoch_metrics, epoch=epoch, avg=True)
@@ -101,22 +101,18 @@ class Model(Diffable):
         NOTE: This method is almost identical to fit (think about how training and testing differ --
         the core logic should be the same)
         """
-        num_samples = x.shape[0]  
-        history = defaultdict(list)
-        
-        epoch_metrics = defaultdict(list)
+        agg_metrics = defaultdict(lambda: [])
+        batch_num = x.shape[0] // batch_size
 
-
-        for i,j in enumerate(range(batch_size,x.shape[0]+1,batch_size)):
-            var = j- batch_size
-            batch_metrics, predictions = self.batch_step(x[var:j], y[var:j], training=False)
+        epoch_metrics = defaultdict(lambda: [])
+        for b, b1 in enumerate(range(batch_size, x.shape[0] + 1, batch_size)):
+            b0 = b1 - batch_size
+            batch_metrics = self.batch_step(x[b0:b1], y[b0:b1], training=False)
             update_metric_dict(epoch_metrics, batch_metrics)
-
-            print_stats(batch_metrics, batch_num=i//batch_size, num_batches=num_samples//batch_size, epoch=epoch)
-
-        update_metric_dict(history, epoch_metrics)
+            print_stats(batch_metrics, b, batch_num)
+        update_metric_dict(agg_metrics, epoch_metrics)
         print_stats(epoch_metrics, avg=True)
-        return history
+        return agg_metrics
 
     def get_input_gradients(self) -> list[Tensor]:
         return super().get_input_gradients()
@@ -152,13 +148,13 @@ class SequentialModel(Model):
         
         with GradientTape() as tape:
             predictions = self.forward(x)
-            loss = self.compiled_loss.forward(predictions, y)
+            loss = self.compiled_loss(predictions, y)
            
         if training:
             gradients = tape.gradient(loss,self.trainable_variables)
             self.optimizer.apply_gradients(self.trainable_variables, gradients)
 
-        acc = self.compiled_acc.forward(predictions, y)
+        acc = self.compiled_acc(predictions, y)
         if training:
             return {"loss": loss, "acc": acc}
         else:

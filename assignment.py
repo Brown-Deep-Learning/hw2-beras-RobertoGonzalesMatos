@@ -17,9 +17,9 @@ def get_model():
            # e.g. Dense(10, 10),
            Dense(784, 200),
            Softmax(),
-           Dense(200, 200),
+           Dense(200, 100),
            Softmax(),
-           Dense(200, 10),
+           Dense(100, 10),
            Softmax(),
         ]
     )
@@ -27,7 +27,7 @@ def get_model():
 
 def get_optimizer():
     # choose an optimizer, initialize it and return it!
-    return Adam(0.1)
+    return Adam(0.001)
 
 def get_loss_fn():
     # choose a loss function, initialize it and return it!
@@ -52,8 +52,8 @@ if __name__ == '__main__':
     aaa = np.concatenate([train_labels,test_labels],axis = -1)
     OneHotEncode.fit(data = aaa)
     # 4. Train the model
-    model.fit(train_inputs,OneHotEncode.forward(train_labels),10,10)
+    model.fit(train_inputs,OneHotEncode.forward(train_labels),10,5)
     # 5. Evaluate the model
-    model.evaluate(test_inputs, OneHotEncode.forward(test_labels), 10)
+    model.evaluate(test_inputs, OneHotEncode.forward(test_labels), 5)
 
     
