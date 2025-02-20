@@ -52,7 +52,7 @@ if __name__ == '__main__':
     aaa = np.concatenate([train_labels,test_labels],axis = -1)
     OneHotEncode.fit(data = aaa)
     # 4. Train the model
-    model.fit(train_inputs,OneHotEncode.forward(train_labels),10,5)
+    model.fit(train_inputs,OneHotEncode.forward(train_labels),5,5)
     # 5. Evaluate the model
     model.evaluate(test_inputs, OneHotEncode.forward(test_labels), 5)
 
